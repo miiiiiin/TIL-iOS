@@ -19,26 +19,23 @@ class ViewController: UIViewController {
         view.showsHorizontalScrollIndicator = false
         view.delegate = self
 //        view.delaysContentTouches = false
-        view.backgroundColor = .blue
+        view.backgroundColor = .secondarySystemBackground
         return view
     }()
     
     lazy var contentView: UIView = {
         let view = UIView()
-        view.backgroundColor = .green
+        view.backgroundColor = .tertiarySystemBackground
         return view
     }()
     
     lazy var inputTextField: UITextField = {
         let tf = UITextField()
         tf.placeholder = "입력해주세요"
-        tf.textColor = .black
+        tf.textColor = .white
         tf.font = .systemFont(ofSize: 14)
         tf.clearButtonMode = .whileEditing
-        tf.text = nil
         tf.contentVerticalAlignment = .center
-        tf.clearsOnInsertion = false
-        tf.clearsOnBeginEditing = false
         tf.layer.cornerRadius = 5
         tf.layer.borderWidth = 1
         tf.layer.borderColor = UIColor.white.cgColor
@@ -47,6 +44,10 @@ class ViewController: UIViewController {
     
     let disposeBag = DisposeBag()
     
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        self.view.endEditing(true)
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -54,7 +55,6 @@ class ViewController: UIViewController {
         scrollView.addSubview(contentView)
         
         [inputTextField].forEach(contentView.addSubview(_:))
-        
         
         scrollView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
@@ -69,7 +69,7 @@ class ViewController: UIViewController {
         }
         
         inputTextField.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(24)
+            make.centerY.equalTo(contentView.snp.centerY)
             make.leading.equalToSuperview().offset(24)
             make.trailing.equalToSuperview().offset(-24)
             make.height.equalTo(52)
@@ -83,6 +83,12 @@ class ViewController: UIViewController {
         inputTextField.rx.controlEvent(.touchDown)
             .bind { [unowned self] _ in
                 inputTextField.layer.borderColor = UIColor.red.cgColor
+            }
+            .disposed(by: disposeBag)
+        
+        inputTextField.rx.controlEvent(.editingDidEndOnExit)
+            .bind { [unowned self] _ in
+                self.view.endEditing(true)
             }
             .disposed(by: disposeBag)
     }
